@@ -117,6 +117,44 @@ func main() {
 	go pizzeria(pizzaJob)
 
 	//create and run consumer
+	for i := range pizzaJob.data{
+		if i.pizzaNumber <= NumberOfPizzas {
+			if i.success {
+				color.Green(i.message)
+				color.Green("Pizza order #%d is out for delivery", i.pizzaNumber)
+			} else {
+				color.Red(i.message)
+				color.Red("Pizza order #%d could not be delivered", i.pizzaNumber)
+			}
+		} else {
+			color.Cyan("Finished making pizzas for today")
+			err := pizzaJob.Close()
+			if err != nil {
+				color.Red("*** Error closing channel", err)
+			}
+		}
+	}
 
-	//print the ending message
-}
+	color.Cyan("-------------------------")
+	color.Cyan("Pizzeria closed for today")
+	color.Cyan("We made %d pizzas, but failed to make %d, with %d attempts in total", pizzasMade, pizzasFailed, total)
+
+	switch {
+		case pizzasFailed > 9: 
+			color.Red("Daily Performance Review: Significant improvement needed...")
+		
+		case pizzasFailed >= 6: 
+			color.Red("Daily Performance Review: Improvement needed...")
+
+		case pizzasFailed >= 4:
+			color.Yellow("Daily Performance Review: Some improvement needed...")
+
+		case pizzasFailed >= 2:
+			color.Yellow("Daily Performance Review: Satisfactory...")
+		
+		default: 
+			color.Green("Daily Performance Review: Excellent!")
+		
+		}
+	}
+
